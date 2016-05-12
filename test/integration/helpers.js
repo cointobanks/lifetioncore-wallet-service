@@ -8,9 +8,12 @@ var sinon = require('sinon');
 var should = chai.should();
 var log = require('npmlog');
 log.debug = log.verbose;
+var minimongo = require('minimongo');
+/*
 var tingodb = require('tingodb')({
   memStore: true
 });
+*/
 
 var Bitcore = require('bitcore-lib');
 
@@ -35,13 +38,28 @@ helpers.CLIENT_VERSION = 'bwc-2.0.0';
 helpers.before = function(cb) {
   function getDb(cb) {
     if (useMongoDb) {
+      console.log("test");
       var mongodb = require('mongodb');
       mongodb.MongoClient.connect('mongodb://localhost:27017/bws_test', function(err, db) {
         if (err) throw err;
         return cb(db);
       });
     } else {
+      console.log("--using memorydb--");
+      var LocalDb = minimongo.MemoryDb;
+      var db = new LocalDb();
+      db.addCollection("wallets");
+      db.addCollection("txs");
+      db.addCollection("addresses");
+      db.addCollection("notifications");
+      db.addCollection("copayers_lookup");
+      db.addCollection("preferences");
+      db.addCollection("email_queue");
+      db.addCollection("cache");
+      db.addCollection("fiat_rates");
+      /*
       var db = new tingodb.Db('./db/test', {});
+       */
       return cb(db);
     }
   }
@@ -55,6 +73,30 @@ helpers.before = function(cb) {
 
 helpers.beforeEach = function(cb) {
   if (!storage.db) return cb();
+
+  var LocalDb = minimongo.MemoryDb;
+  storage.db = new LocalDb();
+  storage.db.addCollection("wallets");
+  storage.db.addCollection("txs");
+  storage.db.addCollection("addresses");
+  storage.db.addCollection("notifications");
+  storage.db.addCollection("copayers_lookup");
+  storage.db.addCollection("preferences");
+  storage.db.addCollection("email_queue");
+  storage.db.addCollection("cache");
+  storage.db.addCollection("fiat_rates");
+
+  blockchainExplorer = sinon.stub();
+  var opts = {
+    storage: storage,
+    blockchainExplorer: blockchainExplorer,
+    request: sinon.stub()
+  };
+  WalletService.initialize(opts, function() {
+    return cb(opts);
+  });
+
+  /*
   storage.db.dropDatabase(function(err) {
     if (err) return cb(err);
     blockchainExplorer = sinon.stub();
@@ -67,6 +109,7 @@ helpers.beforeEach = function(cb) {
       return cb(opts);
     });
   });
+  */
 };
 
 helpers.after = function(cb) {
