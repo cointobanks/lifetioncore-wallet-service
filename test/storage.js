@@ -104,9 +104,9 @@ describe('Storage', function() {
       });
       should.exist(wallet);
       storage.storeWallet(wallet, function(err) {
-        //should.not.exist(err);
+        should.not.exist(err);
         storage.fetchWallet('123', function(err, w) {
-          //should.not.exist(err);
+          should.not.exist(err);
           should.exist(w);
           w.id.should.equal(wallet.id);
           w.name.should.equal(wallet.name);
