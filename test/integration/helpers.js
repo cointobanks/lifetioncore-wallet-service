@@ -15,7 +15,7 @@ var tingodb = require('tingodb')({
 });
 */
 
-var Bitcore = require('bitcore-lib');
+var Bitcore = require('bitcore-lib-dash');
 
 var Common = require('../../lib/common');
 var Utils = Common.Utils;
