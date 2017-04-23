@@ -10,8 +10,6 @@ log.debug = log.verbose;
 log.disableColor();
 
 
-
-
 var port = process.env.BWS_PORT || config.port || 3232;
 
 var cluster = require('cluster');
@@ -28,7 +26,8 @@ if (config.https) {
     if (config.ciphers) {
         serverOpts.ciphers = config.ciphers;
         serverOpts.honorCipherOrder = true;
-    };
+    }
+    ;
 
     // This sets the intermediate CA certs only if they have all been designated in the config.js
     if (config.CAinter1 && config.CAinter2 && config.CAroot) {
@@ -36,7 +35,8 @@ if (config.https) {
             fs.readFileSync(config.CAinter2),
             fs.readFileSync(config.CAroot)
         ];
-    };
+    }
+    ;
 }
 
 if (config.cluster && !config.lockOpts.lockerServer)
@@ -50,11 +50,11 @@ var expressApp = new ExpressApp();
 function startInstance(cb) {
     var server = config.https ? serverModule.createServer(serverOpts, expressApp.app) : serverModule.Server(expressApp.app);
 
-    server.on('connection', function(socket) {
+    server.on('connection', function (socket) {
         socket.setTimeout(300 * 1000);
     })
 
-    expressApp.start(config, function(err) {
+    expressApp.start(config, function (err) {
         if (err) {
             log.error('Could not start BWS instance', err);
             return;
@@ -81,7 +81,7 @@ if (config.cluster && cluster.isMaster) {
     }
 
     // Listen for dying workers
-    cluster.on('exit', function(worker) {
+    cluster.on('exit', function (worker) {
         // Replace the dead worker,
         log.error('Worker ' + worker.id + ' died :(');
         cluster.fork();
@@ -91,3 +91,25 @@ if (config.cluster && cluster.isMaster) {
     log.info('Listening on port: ' + port);
     startInstance();
 };
+
+
+
+//Help for debugging
+Error.stackTraceLimit = 50;
+//Allow server to handle a crash while still giving enought data.
+process.on('error', function (err) {
+    console.log('Catched error.');
+    console.error(err)
+});
+process.on('rejectionHandled', function (err) {
+    console.log('A rejection was handled.');
+    console.error(err)
+});
+process.on('uncaughtException', function (err) {
+    console.log('A uncaughtException was caught.');
+    console.error(err)
+});
+process.on('unhandledRejection', function (err) {
+    console.log('An unhandledRejection was caught.');
+    console.error(err)
+});
