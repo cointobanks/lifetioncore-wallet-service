@@ -38,11 +38,13 @@ var config = {
   blockchainExplorerOpts: {
     livenet: {
       provider: 'insight',
-      url: 'https://insight.dash.org:443/insight',
+      url: 'https://insight.dash.org:443',
+      apiPrefix:'/insight-api-dash'
     },
     testnet: {
       provider: 'insight',
       url: 'https://dev-test.dash.org:443',
+      apiPrefix:'/insight-api-dash'
       // url: 'http://localhost:3001',
       // Multiple servers (in priority order)
       // url: ['http://a.b.c', 'https://test-insight.bitpay.com:443'],
