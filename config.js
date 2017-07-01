@@ -6,7 +6,7 @@ var config = {
   // Uncomment to make BWS a forking server
   // cluster: true,
 
-  // Uncomment to set the number or process (will use the nr of availalbe CPUs by default)
+  // Uncomment to set the number or process (will use the # of available CPUs by default)
   // clusterInstances: 4,
 
   // https: true,
