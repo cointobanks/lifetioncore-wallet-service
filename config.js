@@ -41,10 +41,13 @@ var config = {
     livenet: {
       provider: 'insight',
       url: 'https://insight.dash.org',
+        apiPrefix:'/insight-api-dash'
     },
     testnet: {
-      provider: 'insight',
-      url: 'https://test-insight.dash.org',
+      provider: 'insight', 
+      url: 'https://dev-test.dash.org',
+        apiPrefix:'/insight-api-dash'
+      // url: 'https://test-insight.dash.org',
       // url: 'http://localhost:3001',
       // Multiple servers (in priority order)
       // url: ['http://a.b.c', 'https://test-insight.bitpay.com:443'],
