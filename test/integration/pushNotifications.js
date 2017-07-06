@@ -520,9 +520,8 @@ describe('Push notifications', function() {
           var args = _.filter(_.map(calls, function(call) {
             return call.args[0];
           }), function(arg) {
-            return arg.body.notification.title == 'New copayer';
+            return arg.body.notification.title == 'New copayer\r';
           });
-
           server.getWallet(null, function(err, wallet) {
             /*
               First call - copayer2 joined
@@ -532,6 +531,7 @@ describe('Push notifications', function() {
             var hashedCopayerIds = _.map(wallet.copayers, function(copayer) {
               return sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(copayer.id));
             });
+           
             hashedCopayerIds[0].should.equal((args[0].body.data.copayerId));
             hashedCopayerIds[1].should.not.equal((args[0].body.data.copayerId));
 
