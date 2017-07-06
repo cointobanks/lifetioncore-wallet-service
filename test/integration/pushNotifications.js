@@ -520,7 +520,7 @@ describe('Push notifications', function() {
           var args = _.filter(_.map(calls, function(call) {
             return call.args[0];
           }), function(arg) {
-            return arg.body.notification.title == 'New copayer';
+            return arg.body.notification.title == 'New copayer' || arg.body.notification.title == 'New copayer\r';
           });
 
           server.getWallet(null, function(err, wallet) {
