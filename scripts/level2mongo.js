@@ -2,7 +2,7 @@
 
 var LevelStorage = require('../lib/storage_leveldb');
 var MongoStorage = require('../lib/storage');
-var Bitcore = require('bitcore-lib');
+var Bitcore = require('bitcore-lib-dash');
 
 var level = new LevelStorage({
   dbPath: './db',
@@ -10,6 +10,7 @@ var level = new LevelStorage({
 
 var mongo = new MongoStorage();
 mongo.connect({
+    // nmarley TODO: Again, pull this from config. Do not hard-code values.
     mongoDb: {
       uri: 'mongodb://localhost:27017/bws',
     }
