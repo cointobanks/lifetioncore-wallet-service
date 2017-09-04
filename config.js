@@ -38,12 +38,12 @@ var config = {
   blockchainExplorerOpts: {
     livenet: {
       provider: 'insight',
-      url: 'https://insight.dash.org:443',
+      url: 'https://insight.dashevo.org',
       apiPrefix:'/insight-api-dash'
     },
     testnet: {
       provider: 'insight',
-      url: 'https://dev-test.dash.org:443',
+      url: 'https://testnet-insight.dashevo.org',
       apiPrefix:'/insight-api-dash'
       // url: 'http://localhost:3001',
       // Multiple servers (in priority order)
