@@ -44,8 +44,8 @@ var config = {
       apiPrefix:'/insight-api-dash'
     },
     testnet: {
-      provider: 'insight', 
-      url: 'http://testnet.insight.dashevo.org',
+      provider: 'insight',
+      url: 'https://testnet-insight.dashevo.org',
       apiPrefix:'/insight-api-dash'
       // url: 'https://test-insight.dash.org',
       // url: 'http://localhost:3001',
