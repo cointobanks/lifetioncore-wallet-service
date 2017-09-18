@@ -80,11 +80,14 @@ describe('Email notifications', function() {
         }
       };
       helpers.stubUtxos(server, wallet, [1, 1], function() {
-        var txOpts = helpers.createSimpleProposalOpts('18PzpUFkFZE8zKWUPvfykkTxmB9oMR8qP7', 0.8, TestData.copayers[0].privKey_1H_0, {
-          message: 'some message'
-        });
-        server.createTxLegacy(txOpts, function(err, tx) {
-          should.not.exist(err);
+        var txOpts = {
+          outputs: [{
+            toAddress: 'XqHSiRAXd3EmNUPCAqok6ch5XzVWqKg7VD',
+            amount: 0.8e8
+          }],
+          feePerKb: 100e2
+        };
+        helpers.createAndPublishTx(server, txOpts, TestData.copayers[0].privKey_1H_0, function(tx) {
           setTimeout(function() {
             var calls = mailerStub.sendMail.getCalls();
             calls.length.should.equal(2);
@@ -95,11 +98,8 @@ describe('Email notifications', function() {
             var one = emails[0];
             one.from.should.equal('bws@dummy.net');
             one.subject.should.contain('New payment proposal');
-            one.text.should.contain(wallet.name);
-            one.text.should.contain(wallet.copayers[0].name);
             should.exist(one.html);
             one.html.indexOf('<html>').should.equal(0);
-            one.html.should.contain(wallet.name);
             server.storage.fetchUnsentEmails(function(err, unsent) {
               should.not.exist(err);
               unsent.should.be.empty;
@@ -117,11 +117,14 @@ describe('Email notifications', function() {
         _applyTemplate_old.call(emailService, template, undefined, cb);
       };
       helpers.stubUtxos(server, wallet, [1, 1], function() {
-        var txOpts = helpers.createSimpleProposalOpts('18PzpUFkFZE8zKWUPvfykkTxmB9oMR8qP7', 0.8, TestData.copayers[0].privKey_1H_0, {
-          message: 'some message'
-        });
-        server.createTxLegacy(txOpts, function(err, tx) {
-          should.not.exist(err);
+        var txOpts = {
+          outputs: [{
+            toAddress: 'XqHSiRAXd3EmNUPCAqok6ch5XzVWqKg7VD',
+            amount: 0.8e8
+          }],
+          feePerKb: 100e2
+        };
+        helpers.createAndPublishTx(server, txOpts, TestData.copayers[0].privKey_1H_0, function(tx) {
           setTimeout(function() {
             var calls = mailerStub.sendMail.getCalls();
             calls.length.should.equal(0);
@@ -146,15 +149,21 @@ describe('Email notifications', function() {
         }
       };
       helpers.stubUtxos(server, wallet, [1, 1], function() {
-        var txOpts = helpers.createSimpleProposalOpts('18PzpUFkFZE8zKWUPvfykkTxmB9oMR8qP7', 0.8, TestData.copayers[0].privKey_1H_0, {
-          message: 'some message'
-        });
+        var txOpts = {
+          outputs: [{
+            toAddress: 'XqHSiRAXd3EmNUPCAqok6ch5XzVWqKg7VD',
+            amount: 0.8e8
+          }],
+          feePerKb: 100e2
+        };
 
         var txp;
         async.waterfall([
 
           function(next) {
-            server.createTxLegacy(txOpts, next);
+            helpers.createAndPublishTx(server, txOpts, TestData.copayers[0].privKey_1H_0, function(tx) {
+              next(null, tx);
+            });
           },
           function(t, next) {
             txp = t;
@@ -190,7 +199,6 @@ describe('Email notifications', function() {
             var one = emails[0];
             one.from.should.equal('bws@dummy.net');
             one.subject.should.contain('Payment sent');
-            one.text.should.contain(wallet.name);
             one.text.should.contain('800,000');
             should.exist(one.html);
             one.html.should.contain('https://insight.bitpay.com/tx/' + txp.txid);
@@ -207,15 +215,21 @@ describe('Email notifications', function() {
 
     it('should notify copayers a tx has been finally rejected', function(done) {
       helpers.stubUtxos(server, wallet, 1, function() {
-        var txOpts = helpers.createSimpleProposalOpts('18PzpUFkFZE8zKWUPvfykkTxmB9oMR8qP7', 0.8, TestData.copayers[0].privKey_1H_0, {
-          message: 'some message'
-        });
+        var txOpts = {
+          outputs: [{
+            toAddress: 'XqHSiRAXd3EmNUPCAqok6ch5XzVWqKg7VD',
+            amount: 0.8e8
+          }],
+          feePerKb: 100e2
+        };
 
         var txpId;
         async.waterfall([
 
           function(next) {
-            server.createTxLegacy(txOpts, next);
+            helpers.createAndPublishTx(server, txOpts, TestData.copayers[0].privKey_1H_0, function(tx) {
+              next(null, tx);
+            });
           },
           function(txp, next) {
             txpId = txp.id;
@@ -240,9 +254,6 @@ describe('Email notifications', function() {
             var one = emails[0];
             one.from.should.equal('bws@dummy.net');
             one.subject.should.contain('Payment proposal rejected');
-            one.text.should.contain(wallet.name);
-            one.text.should.contain('copayer 2, copayer 3');
-            one.text.should.not.contain('copayer 1');
             server.storage.fetchUnsentEmails(function(err, unsent) {
               should.not.exist(err);
               unsent.should.be.empty;
@@ -273,7 +284,6 @@ describe('Email notifications', function() {
             var one = emails[0];
             one.from.should.equal('bws@dummy.net');
             one.subject.should.contain('New payment received');
-            one.text.should.contain(wallet.name);
             one.text.should.contain('123,000');
             server.storage.fetchUnsentEmails(function(err, unsent) {
               should.not.exist(err);
@@ -284,6 +294,38 @@ describe('Email notifications', function() {
         });
       });
     });
+
+    it('should notify copayers when tx is confirmed if they are subscribed', function(done) {
+      server.createAddress({}, function(err, address) {
+        should.not.exist(err);
+
+        server.txConfirmationSubscribe({
+          txid: '123'
+        }, function(err) {
+          should.not.exist(err);
+
+          // Simulate tx confirmation notification
+          server._notify('TxConfirmation', {
+            txid: '123',
+          }, function(err) {
+            setTimeout(function() {
+              var calls = mailerStub.sendMail.getCalls();
+              calls.length.should.equal(1);
+              var email = calls[0].args[0];
+              email.to.should.equal('copayer1@domain.com');
+              email.from.should.equal('bws@dummy.net');
+              email.subject.should.contain('Transaction confirmed');
+              server.storage.fetchUnsentEmails(function(err, unsent) {
+                should.not.exist(err);
+                unsent.should.be.empty;
+                done();
+              });
+            }, 100);
+          });
+        });
+      });
+    });
+
 
     it('should notify each email address only once', function(done) {
       // Set same email address for copayer1 and copayer2
@@ -309,7 +351,6 @@ describe('Email notifications', function() {
               var one = emails[0];
               one.from.should.equal('bws@dummy.net');
               one.subject.should.contain('New payment received');
-              one.text.should.contain(wallet.name);
               one.text.should.contain('123,000');
               server.storage.fetchUnsentEmails(function(err, unsent) {
                 should.not.exist(err);
@@ -349,14 +390,12 @@ describe('Email notifications', function() {
               });
               spanish.from.should.equal('bws@dummy.net');
               spanish.subject.should.contain('Nuevo pago recibido');
-              spanish.text.should.contain(wallet.name);
               spanish.text.should.contain('0.123 BTC');
               var english = _.find(emails, {
                 to: 'copayer2@domain.com'
               });
               english.from.should.equal('bws@dummy.net');
               english.subject.should.contain('New payment received');
-              english.text.should.contain(wallet.name);
               english.text.should.contain('123,000 bits');
               done();
             }, 100);
@@ -378,11 +417,14 @@ describe('Email notifications', function() {
         },
       }, function(err) {
         helpers.stubUtxos(server, wallet, 1, function() {
-          var txOpts = helpers.createSimpleProposalOpts('18PzpUFkFZE8zKWUPvfykkTxmB9oMR8qP7', 0.8, TestData.copayers[0].privKey_1H_0, {
-            message: 'some message'
-          });
-          server.createTxLegacy(txOpts, function(err, tx) {
-            should.not.exist(err);
+          var txOpts = {
+            outputs: [{
+              toAddress: 'XqHSiRAXd3EmNUPCAqok6ch5XzVWqKg7VD',
+              amount: 0.8e8
+            }],
+            feePerKb: 100e2
+          };
+          helpers.createAndPublishTx(server, txOpts, TestData.copayers[0].privKey_1H_0, function(tx) {
             setTimeout(function() {
               var calls = mailerStub.sendMail.getCalls();
               calls.length.should.equal(2);
@@ -444,11 +486,14 @@ describe('Email notifications', function() {
 
       it('should NOT notify copayers a new tx proposal has been created', function(done) {
         helpers.stubUtxos(server, wallet, [1, 1], function() {
-          var txOpts = helpers.createSimpleProposalOpts('18PzpUFkFZE8zKWUPvfykkTxmB9oMR8qP7', 0.8, TestData.copayers[0].privKey_1H_0, {
-            message: 'some message'
-          });
-          server.createTxLegacy(txOpts, function(err, tx) {
-            should.not.exist(err);
+          var txOpts = {
+            outputs: [{
+              toAddress: 'XqHSiRAXd3EmNUPCAqok6ch5XzVWqKg7VD',
+              amount: 0.8e8
+            }],
+            feePerKb: 100e2
+          };
+          helpers.createAndPublishTx(server, txOpts, TestData.copayers[0].privKey_1H_0, function(tx) {
             setTimeout(function() {
               var calls = mailerStub.sendMail.getCalls();
               calls.length.should.equal(0);

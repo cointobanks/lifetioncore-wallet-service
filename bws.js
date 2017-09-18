@@ -21,95 +21,71 @@ var serverModule = config.https ? require('https') : require('http');
 var serverOpts = {};
 
 if (config.https) {
-    serverOpts.key = fs.readFileSync(config.privateKeyFile || './ssl/privatekey.pem');
-    serverOpts.cert = fs.readFileSync(config.certificateFile || './ssl/certificate.pem');
-    if (config.ciphers) {
-        serverOpts.ciphers = config.ciphers;
-        serverOpts.honorCipherOrder = true;
-    }
-    ;
+  serverOpts.key = fs.readFileSync(config.privateKeyFile || './ssl/privatekey.pem');
+  serverOpts.cert = fs.readFileSync(config.certificateFile || './ssl/certificate.pem');
+  if (config.ciphers) {
+    serverOpts.ciphers = config.ciphers;
+    serverOpts.honorCipherOrder = true;
+  };
 
-    // This sets the intermediate CA certs only if they have all been designated in the config.js
-    if (config.CAinter1 && config.CAinter2 && config.CAroot) {
-        serverOpts.ca = [fs.readFileSync(config.CAinter1),
-            fs.readFileSync(config.CAinter2),
-            fs.readFileSync(config.CAroot)
-        ];
-    }
-    ;
+  // This sets the intermediate CA certs only if they have all been designated in the config.js
+  if (config.CAinter1 && config.CAinter2 && config.CAroot) {
+    serverOpts.ca = [fs.readFileSync(config.CAinter1),
+      fs.readFileSync(config.CAinter2),
+      fs.readFileSync(config.CAroot)
+    ];
+  };
 }
 
 if (config.cluster && !config.lockOpts.lockerServer)
-    throw 'When running in cluster mode, locker server need to be configured';
+  throw 'When running in cluster mode, locker server need to be configured';
 
 if (config.cluster && !config.messageBrokerOpts.messageBrokerServer)
-    throw 'When running in cluster mode, message broker server need to be configured';
+  throw 'When running in cluster mode, message broker server need to be configured';
 
 var expressApp = new ExpressApp();
 
 function startInstance(cb) {
-    var server = config.https ? serverModule.createServer(serverOpts, expressApp.app) : serverModule.Server(expressApp.app);
+  var server = config.https ? serverModule.createServer(serverOpts, expressApp.app) : serverModule.Server(expressApp.app);
 
-    server.on('connection', function (socket) {
-        socket.setTimeout(300 * 1000);
-    })
+  server.on('connection', function(socket) {
+    socket.setTimeout(300 * 1000);
+  })
 
-    expressApp.start(config, function (err) {
-        if (err) {
-            log.error('Could not start BWS instance', err);
-            return;
-        }
+  expressApp.start(config, function(err) {
+    if (err) {
+      log.error('Could not start BWS instance', err);
+      return;
+    }
 
-        server.listen(port);
+    server.listen(port);
 
-        var instanceInfo = cluster.worker ? ' [Instance:' + cluster.worker.id + ']' : '';
-        log.info('BWS running ' + instanceInfo);
-        return;
-    });
+    var instanceInfo = cluster.worker ? ' [Instance:' + cluster.worker.id + ']' : '';
+    log.info('BWS running ' + instanceInfo);
+    return;
+  });
 };
 
 if (config.cluster && cluster.isMaster) {
 
-    // Count the machine's CPUs
-    var instances = config.clusterInstances || require('os').cpus().length;
+  // Count the machine's CPUs
+  var instances = config.clusterInstances || require('os').cpus().length;
 
-    log.info('Starting ' + instances + ' instances');
+  log.info('Starting ' + instances + ' instances');
 
-    // Create a worker for each CPU
-    for (var i = 0; i < instances; i += 1) {
-        cluster.fork();
-    }
+  // Create a worker for each CPU
+  for (var i = 0; i < instances; i += 1) {
+    cluster.fork();
+  }
 
-    // Listen for dying workers
-    cluster.on('exit', function (worker) {
-        // Replace the dead worker,
-        log.error('Worker ' + worker.id + ' died :(');
-        cluster.fork();
-    });
-    // Code to run if we're in a worker process
+  // Listen for dying workers
+  cluster.on('exit', function(worker) {
+    // Replace the dead worker,
+    log.error('Worker ' + worker.id + ' died :(');
+    cluster.fork();
+  });
+  // Code to run if we're in a worker process
 } else {
-    log.info('Listening on port: ' + port);
-    startInstance();
+  log.info('Listening on port: ' + port);
+  startInstance();
 };
-
-
-
-//Help for debugging
-Error.stackTraceLimit = 50;
-//Allow server to handle a crash while still giving enought data.
-process.on('error', function (err) {
-    console.log('Catched error.');
-    console.error(err)
-});
-process.on('rejectionHandled', function (err) {
-    console.log('A rejection was handled.');
-    console.error(err)
-});
-process.on('uncaughtException', function (err) {
-    console.log('A uncaughtException was caught.');
-    console.error(err)
-});
-process.on('unhandledRejection', function (err) {
-    console.log('An unhandledRejection was caught.');
-    console.error(err)
-});

@@ -8,12 +8,9 @@ var sinon = require('sinon');
 var should = chai.should();
 var log = require('npmlog');
 log.debug = log.verbose;
-var minimongo = require('minimongo');
-/*
 var tingodb = require('tingodb')({
   memStore: true
 });
-*/
 
 var Bitcore = require('bitcore-lib-dash');
 
@@ -38,28 +35,13 @@ helpers.CLIENT_VERSION = 'bwc-2.0.0';
 helpers.before = function(cb) {
   function getDb(cb) {
     if (useMongoDb) {
-      console.log("test");
       var mongodb = require('mongodb');
       mongodb.MongoClient.connect('mongodb://localhost:27017/bws_test', function(err, db) {
         if (err) throw err;
         return cb(db);
       });
     } else {
-      console.log("--using memorydb--");
-      var LocalDb = minimongo.MemoryDb;
-      var db = new LocalDb();
-      db.addCollection("wallets");
-      db.addCollection("txs");
-      db.addCollection("addresses");
-      db.addCollection("notifications");
-      db.addCollection("copayers_lookup");
-      db.addCollection("preferences");
-      db.addCollection("email_queue");
-      db.addCollection("cache");
-      db.addCollection("fiat_rates");
-      /*
       var db = new tingodb.Db('./db/test', {});
-       */
       return cb(db);
     }
   }
@@ -73,30 +55,6 @@ helpers.before = function(cb) {
 
 helpers.beforeEach = function(cb) {
   if (!storage.db) return cb();
-
-  var LocalDb = minimongo.MemoryDb;
-  storage.db = new LocalDb();
-  storage.db.addCollection("wallets");
-  storage.db.addCollection("txs");
-  storage.db.addCollection("addresses");
-  storage.db.addCollection("notifications");
-  storage.db.addCollection("copayers_lookup");
-  storage.db.addCollection("preferences");
-  storage.db.addCollection("email_queue");
-  storage.db.addCollection("cache");
-  storage.db.addCollection("fiat_rates");
-
-  blockchainExplorer = sinon.stub();
-  var opts = {
-    storage: storage,
-    blockchainExplorer: blockchainExplorer,
-    request: sinon.stub()
-  };
-  WalletService.initialize(opts, function() {
-    return cb(opts);
-  });
-
-  /*
   storage.db.dropDatabase(function(err) {
     if (err) return cb(err);
     blockchainExplorer = sinon.stub();
@@ -109,7 +67,6 @@ helpers.beforeEach = function(cb) {
       return cb(opts);
     });
   });
-  */
 };
 
 helpers.after = function(cb) {
@@ -131,7 +88,7 @@ helpers.signMessage = function(text, privKey) {
 };
 
 helpers.signRequestPubKey = function(requestPubKey, xPrivKey) {
-  var priv = new Bitcore.HDPrivateKey(xPrivKey).derive(Constants.PATHS.REQUEST_KEY_AUTH).privateKey;
+  var priv = new Bitcore.HDPrivateKey(xPrivKey).deriveChild(Constants.PATHS.REQUEST_KEY_AUTH).privateKey;
   return helpers.signMessage(requestPubKey, priv);
 };
 
@@ -156,18 +113,18 @@ helpers._generateCopayersTestData = function(n) {
     var xpriv = new Bitcore.HDPrivateKey();
     var xpub = Bitcore.HDPublicKey(xpriv);
 
-    var xpriv_45H = xpriv.derive(45, true);
+    var xpriv_45H = xpriv.deriveChild(45, true);
     var xpub_45H = Bitcore.HDPublicKey(xpriv_45H);
     var id45 = Copayer._xPubToCopayerId(xpub_45H.toString());
 
-    var xpriv_44H_0H_0H = xpriv.derive(44, true).derive(0, true).derive(0, true);
+    var xpriv_44H_0H_0H = xpriv.deriveChild(44, true).deriveChild(0, true).deriveChild(0, true);
     var xpub_44H_0H_0H = Bitcore.HDPublicKey(xpriv_44H_0H_0H);
     var id44 = Copayer._xPubToCopayerId(xpub_44H_0H_0H.toString());
 
-    var xpriv_1H = xpriv.derive(1, true);
+    var xpriv_1H = xpriv.deriveChild(1, true);
     var xpub_1H = Bitcore.HDPublicKey(xpriv_1H);
-    var priv = xpriv_1H.derive(0).privateKey;
-    var pub = xpub_1H.derive(0).publicKey;
+    var priv = xpriv_1H.deriveChild(0).privateKey;
+    var pub = xpub_1H.deriveChild(0).publicKey;
 
     console.log('{id44: ', "'" + id44 + "',");
     console.log('id45: ', "'" + id45 + "',");
@@ -207,6 +164,7 @@ helpers.createAndJoinWallet = function(m, n, opts, cb) {
     m: m,
     n: n,
     pubKey: TestData.keyPair.pub,
+    singleAddress: !!opts.singleAddress,
   };
   if (_.isBoolean(opts.supportBIP44AndP2PKH))
     walletOpts.supportBIP44AndP2PKH = opts.supportBIP44AndP2PKH;
@@ -365,6 +323,7 @@ helpers.stubBroadcast = function(thirdPartyBroadcast) {
 };
 
 helpers.stubHistory = function(txs) {
+  var totalItems = txs.length;
   blockchainExplorer.getTransactions = function(addresses, from, to, cb) {
     var MAX_BATCH_SIZE = 100;
     var nbTxs = txs.length;
@@ -385,7 +344,7 @@ helpers.stubHistory = function(txs) {
     if (to > nbTxs) to = nbTxs;
 
     var page = txs.slice(from, to);
-    return cb(null, page);
+    return cb(null, page, totalItems);
   };
 };
 
@@ -415,7 +374,7 @@ helpers.clientSign = function(txp, derivedXPrivKey) {
 
   _.each(txp.inputs, function(i) {
     if (!derived[i.path]) {
-      derived[i.path] = xpriv.derive(i.path).privateKey;
+      derived[i.path] = xpriv.deriveChild(i.path).privateKey;
       privs.push(derived[i.path]);
     }
   });
@@ -433,46 +392,6 @@ helpers.clientSign = function(txp, derivedXPrivKey) {
   return signatures;
 };
 
-
-helpers.createProposalOptsLegacy = function(toAddress, amount, message, signingKey, feePerKb) {
-  var opts = {
-    toAddress: toAddress,
-    amount: helpers.toSatoshi(amount),
-    message: message,
-    proposalSignature: null,
-  };
-  if (feePerKb) opts.feePerKb = feePerKb;
-
-  var hash = WalletService._getProposalHash(toAddress, opts.amount, message);
-
-  try {
-    opts.proposalSignature = helpers.signMessage(hash, signingKey);
-  } catch (ex) {}
-
-  return opts;
-};
-
-helpers.createSimpleProposalOpts = function(toAddress, amount, signingKey, opts) {
-  var outputs = [{
-    toAddress: toAddress,
-    amount: amount,
-  }];
-  return helpers.createProposalOpts(Model.TxProposalLegacy.Types.SIMPLE, outputs, signingKey, opts);
-};
-
-helpers.createExternalProposalOpts = function(toAddress, amount, signingKey, moreOpts, inputs) {
-  var outputs = [{
-    toAddress: toAddress,
-    amount: amount,
-  }];
-  if (_.isArray(moreOpts)) {
-    inputs = moreOpts;
-    moreOpts = null;
-  }
-  return helpers.createProposalOpts(Model.TxProposalLegacy.Types.EXTERNAL, outputs, signingKey, moreOpts, inputs);
-};
-
-
 helpers.getProposalSignatureOpts = function(txp, signingKey) {
   var raw = txp.getRawTx();
   var proposalSignature = helpers.signMessage(raw, signingKey);
@@ -484,48 +403,6 @@ helpers.getProposalSignatureOpts = function(txp, signingKey) {
 };
 
 
-helpers.createProposalOpts = function(type, outputs, signingKey, moreOpts, inputs) {
-  _.each(outputs, function(output) {
-    output.amount = helpers.toSatoshi(output.amount);
-  });
-
-  var opts = {
-    type: type,
-    proposalSignature: null,
-    inputs: inputs || []
-  };
-
-  if (moreOpts) {
-    moreOpts = _.pick(moreOpts, ['feePerKb', 'customData', 'message', 'payProUrl']);
-    opts = _.assign(opts, moreOpts);
-  }
-
-  opts = _.defaults(opts, {
-    message: null
-  });
-
-  var hash;
-  if (type == Model.TxProposalLegacy.Types.SIMPLE) {
-    opts.toAddress = outputs[0].toAddress;
-    opts.amount = outputs[0].amount;
-    hash = WalletService._getProposalHash(opts.toAddress, opts.amount,
-      opts.message, opts.payProUrl);
-  } else if (type == Model.TxProposalLegacy.Types.MULTIPLEOUTPUTS || type == Model.TxProposalLegacy.Types.EXTERNAL) {
-    opts.outputs = outputs;
-    var header = {
-      outputs: outputs,
-      message: opts.message,
-      payProUrl: opts.payProUrl
-    };
-    hash = WalletService._getProposalHash(header);
-  }
-
-  try {
-    opts.proposalSignature = helpers.signMessage(hash, signingKey);
-  } catch (ex) {}
-
-  return opts;
-};
 helpers.createAddresses = function(server, wallet, main, change, cb) {
   // var clock = sinon.useFakeTimers('Date');
   async.mapSeries(_.range(main + change), function(i, next) {
@@ -550,6 +427,57 @@ helpers.createAndPublishTx = function(server, txOpts, signingKey, cb) {
       return cb(txp);
     });
   });
+};
+
+
+helpers.historyCacheTest = function(items) {
+  var template = {
+    txid: "fad88682ccd2ff34cac6f7355fe9ecd8addd9ef167e3788455972010e0d9d0de",
+    vin: [{
+      txid: "0279ef7b21630f859deb723e28beac9e7011660bd1346c2da40321d2f7e34f04",
+      vout: 0,
+      n: 0,
+      addr: "2NAVFnsHqy5JvqDJydbHPx393LFqFFBQ89V",
+      valueSat: 45753,
+      value: 0.00045753,
+    }],
+    vout: [{
+      value: "0.00011454",
+      n: 0,
+      scriptPubKey: {
+        addresses: [
+          "2N7GT7XaN637eBFMmeczton2aZz5rfRdZso"
+        ]
+      }
+    }, {
+      value: "0.00020000",
+      n: 1,
+      scriptPubKey: {
+        addresses: [
+          "mq4D3Va5mYHohMEHrgHNGzCjKhBKvuEhPE"
+        ]
+      }
+    }],
+    confirmations: 1,
+    blockheight: 423499,
+    time: 1424472242,
+    blocktime: 1424472242,
+    valueOut: 0.00031454,
+    valueIn: 0.00045753,
+    fees: 0.00014299
+  };
+
+  var ret = [];
+  _.each(_.range(0, items), function(i) {
+    var t = _.clone(template);
+    t.txid = 'txid:' + i;
+    t.confirmations = items - i - 1;
+    t.blockheight = i;
+    t.time = t.blocktime = i;
+    ret.unshift(t);
+  });
+
+  return ret;
 };
 
 module.exports = helpers;

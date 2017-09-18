@@ -12,22 +12,34 @@ describe('Wallet', function() {
   describe('#create', function() {
     it('will throw with an invalid string argument for "m" or "n"', function() {
       (function() {
-        Wallet.create({m: '2', n: 2});
-      }).should.throw('"m" is expected to be a number');
+        Wallet.create({
+          m: '2',
+          n: 2
+        });
+      }).should.throw('Variable should be a Number.');
       (function() {
-        Wallet.create({m: 2, n: '2'});
-      }).should.throw('"n" is expected to be a number');
+        Wallet.create({
+          m: 2,
+          n: '2'
+        });
+      }).should.throw('Variable should be a Number.');
     });
   });
 
   describe('#fromObj', function() {
     it('will throw with an invalid string argument for "m" or "n"', function() {
       (function() {
-        Wallet.fromObj({m: '2', n: 2});
-      }).should.throw('"m" is expected to be a number');
+        Wallet.fromObj({
+          m: '2',
+          n: 2
+        });
+      }).should.throw('Variable should be a Number.');
       (function() {
-        Wallet.fromObj({m: 2, n: '2'});
-      }).should.throw('"n" is expected to be a number');
+        Wallet.fromObj({
+          m: 2,
+          n: '2'
+        });
+      }).should.throw('Variable should be a Number.');
     });
     it('read a wallet', function() {
       var w = Wallet.fromObj(testWallet);
@@ -38,7 +50,7 @@ describe('Wallet', function() {
     it('create an address', function() {
       var w = Wallet.fromObj(testWallet);
       var a = w.createAddress(false);
-      a.address.should.equal('3HPJYvQZuTVY6pPBz17fFVz2YPoMBVT34i');
+      a.address.should.equal('7i6wP7gjiSbB6av9FcnAasygTwdiyUF3y5');
       a.path.should.equal('m/2147483647/0/0');
       a.createdOn.should.be.above(1);
     });
