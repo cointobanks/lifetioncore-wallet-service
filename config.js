@@ -2,9 +2,11 @@ var config = {
   basePath: '/bws/api',
   disableLogs: false,
   port: 3232,
+
   // Uncomment to make BWS a forking server
   // cluster: true,
-  // Uncomment to use the nr of availalbe CPUs
+
+  // Uncomment to set the number or process (will use the # of available CPUs by default)
   // clusterInstances: 4,
 
   // https: true,
@@ -38,13 +40,14 @@ var config = {
   blockchainExplorerOpts: {
     livenet: {
       provider: 'insight',
-      url: 'https://insight.dash.org:443',
+      url: 'https://insight.dashevo.org',
       apiPrefix:'/insight-api-dash'
     },
     testnet: {
-      provider: 'insight',
-      url: 'https://dev-test.dash.org:443',
+      provider: 'insight', 
+      url: 'http://testnet.insight.dashevo.org',
       apiPrefix:'/insight-api-dash'
+      // url: 'https://test-insight.dash.org',
       // url: 'http://localhost:3001',
       // Multiple servers (in priority order)
       // url: ['http://a.b.c', 'https://test-insight.bitpay.com:443'],
@@ -55,7 +58,8 @@ var config = {
     defaultLanguage: 'en',
     defaultUnit: 'btc',
     subjectPrefix: '',
-    pushServerUrl: 'http://localhost:8000',
+    pushServerUrl: 'https://fcm.googleapis.com/fcm',
+    authorizationKey: '',
   },
   fiatRateServiceOpts: {
     defaultProvider: 'BitPay',
@@ -76,6 +80,12 @@ var config = {
   //    testnet: 'https://test-insight.bitpay.com/tx/{{txid}}',
   //  },
   //},
-
+  //
+  // To use sendgrid:
+  // var sgTransport = require('nodemail-sendgrid-transport');
+  // mailer:sgTransport({
+  //  api_user: xxx,
+  //  api_key: xxx,
+  // });
 };
 module.exports = config;

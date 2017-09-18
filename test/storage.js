@@ -5,13 +5,9 @@ var async = require('async');
 var chai = require('chai');
 var sinon = require('sinon');
 var should = chai.should();
-
-var minimongo = require('minimongo');
-/*
 var tingodb = require('tingodb')({
   memStore: true
 });
-*/
 
 var Storage = require('../lib/storage');
 var Model = require('../lib/model');
@@ -19,21 +15,8 @@ var Model = require('../lib/model');
 var db, storage;
 
 function openDb(cb) {
-  var LocalDb = minimongo.MemoryDb;
-  db = new LocalDb();
-  db.addCollection("wallets");
-  db.addCollection("txs");
-  db.addCollection("addresses");
-  db.addCollection("notifications");
-  db.addCollection("copayers_lookup");
-  db.addCollection("preferences");
-  db.addCollection("email_queue");
-  db.addCollection("cache");
-  db.addCollection("fiat_rates");
-  /*
   db = new tingodb.Db('./db/test', {});
   // HACK: There appears to be a bug in TingoDB's close function where the callback is not being executed
-  */
   db.__close = db.close;
   db.close = function(force, cb) {
     this.__close(force, cb);
@@ -45,39 +28,9 @@ function openDb(cb) {
 
 function resetDb(cb) {
   if (!db) return cb();
-
-  db.removeCollection("wallets");
-  db.removeCollection("txs");
-  db.removeCollection("addresses");
-  db.removeCollection("notifications");
-  db.removeCollection("copayers_lookup");
-  db.removeCollection("preferences");
-  db.removeCollection("email_queue");
-  db.removeCollection("cache");
-  db.removeCollection("fiat_rates");
-
-  db.addCollection("wallets");
-  db.addCollection("txs");
-  db.addCollection("addresses");
-  db.addCollection("notifications");
-  db.addCollection("copayers_lookup");
-  db.addCollection("preferences");
-  db.addCollection("email_queue");
-  db.addCollection("cache");
-  db.addCollection("fiat_rates");
-
-  db.removeCollection(null,function(err) {
-    return cb();
-  });
-
-  /*
-
   db.dropDatabase(function(err) {
     return cb();
   });
-
-  */
-
 };
 
 
@@ -187,14 +140,21 @@ describe('Storage', function() {
       should.exist(wallet);
       storage.storeWalletAndUpdateCopayersLookup(wallet, function(err) {
         should.not.exist(err);
+
         proposals = _.map(_.range(4), function(i) {
-          var tx = Model.TxProposalLegacy.create({
+          var tx = Model.TxProposal.create({
             walletId: '123',
-            toAddress: '18PzpUFkFZE8zKWUPvfykkTxmB9oMR8qP7',
+            outputs: [{
+              toAddress: 'XqHSiRAXd3EmNUPCAqok6ch5XzVWqKg7VD',
+              amount: i + 100,
+            }],
+            feePerKb: 100e2,
             creatorId: wallet.copayers[0].id,
-            amount: i + 100,
           });
           if (i % 2 == 0) {
+            tx.status = 'pending';
+            tx.isPending().should.be.true;
+          } else {
             tx.status = 'rejected';
             tx.isPending().should.be.false;
           }
@@ -236,8 +196,8 @@ describe('Storage', function() {
         should.exist(txs);
         txs.length.should.equal(2);
         txs = _.sortBy(txs, 'amount');
-        txs[0].amount.should.equal(101);
-        txs[1].amount.should.equal(103);
+        txs[0].amount.should.equal(100);
+        txs[1].amount.should.equal(102);
         done();
       });
     });

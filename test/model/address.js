@@ -11,7 +11,7 @@ describe('Address', function() {
   describe('#create', function() {
     it('should create livenet address', function() {
       var x = Address.create({
-        address: '3KxttbKQQPWmpsnXZ3rB4mgJTuLnVR7frg',
+        address: 'XyeQcLRXz116nTgjhEE7cLS321C94DNtPv',
         walletId: '123',
         isChange: false,
         path: 'm/0/1',
@@ -22,7 +22,7 @@ describe('Address', function() {
     });
     it('should create testnet address', function() {
       var x = Address.create({
-        address: 'mp5xaa4uBj16DJt1fuA3D9fejHuCzeb7hj',
+        address: 'yjNjJx2J3tns2MESsyK4KKZj356fPEimMm',
         walletId: '123',
         isChange: false,
         path: 'm/0/1',
@@ -42,7 +42,7 @@ describe('Address', function() {
       }], 'm/0/0', 1, 'livenet', false);
       should.exist(address);
       address.walletId.should.equal('wallet-id');
-      address.address.should.equal('3QN2CiSxcUsFuRxZJwXMNDQ2esnr5RXTvw');
+      address.address.should.equal('7q5f2uj8RTxtuCVWaZBrhbPgaRdDzkgnzn');
       address.network.should.equal('livenet');
       address.isChange.should.be.false;
       address.path.should.equal('m/0/0');
@@ -55,7 +55,7 @@ describe('Address', function() {
       }], 'm/0/0', 1, 'livenet', false);
       should.exist(address);
       address.walletId.should.equal('wallet-id');
-      address.address.should.equal('3BY4K8dfsHryhWh2MJ6XHxxsRfcvPAyseH');
+      address.address.should.equal('7cFh9KuqgGxchHDycum2dLxXMDTJ9ganzL');
       address.network.should.equal('livenet');
       address.isChange.should.be.false;
       address.path.should.equal('m/0/0');
@@ -68,7 +68,7 @@ describe('Address', function() {
       }], 'm/1/2', 1, 'livenet', true);
       should.exist(address);
       address.walletId.should.equal('wallet-id');
-      address.address.should.equal('1G4wgi9YzmSSwQaQVLXQ5HUVquQDgJf8oT');
+      address.address.should.equal('XqknWxoSxUf36MAzMDqcvpAHgEyudx7kKf');
       address.network.should.equal('livenet');
       address.isChange.should.be.true;
       address.path.should.equal('m/1/2');
