@@ -110,6 +110,7 @@ describe('Push notifications', function() {
               calls.length.should.equal(1);
               args[0].body.notification.title.should.contain('New payment received');
               args[0].body.notification.body.should.contain('123,000');
+              args[0].body.notification.body.should.contain('bits');
               done();
             }, 100);
           });
@@ -368,7 +369,7 @@ describe('Push notifications', function() {
             txpId = txp.id;
             async.eachSeries(_.range(1, 3), function(i, next) {
               var copayer = TestData.copayers[i];
-              helpers.getAuthServer(copayer.id44, function(server) {
+              helpers.getAuthServer(copayer.id44btc, function(server) {
                 server.rejectTx({
                   txProposalId: txp.id,
                 }, next);
@@ -413,7 +414,7 @@ describe('Push notifications', function() {
             txp = t;
             async.eachSeries(_.range(1, 3), function(i, next) {
               var copayer = TestData.copayers[i];
-              helpers.getAuthServer(copayer.id44, function(s) {
+              helpers.getAuthServer(copayer.id44btc, function(s) {
                 server = s;
                 var signatures = helpers.clientSign(txp, copayer.xPrivKey_44H_0H_0H);
                 server.signTx({

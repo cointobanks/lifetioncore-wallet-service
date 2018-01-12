@@ -131,4 +131,42 @@ describe('Utils', function() {
       });
     });
   });
+
+  describe('#getAddressCoin', function() {
+    it('should identify btc as coin for XqHSiRAXd3EmNUPCAqok6ch5XzVWqKg7VD', function() {
+      Utils.getAddressCoin('XqHSiRAXd3EmNUPCAqok6ch5XzVWqKg7VD').should.equal('btc');
+    });
+    it('should identify bch as coin for CcJ4qUfyQ8x5NwhAeCQkrBSWVeXxXghcNz', function() {
+      Utils.getAddressCoin('CcJ4qUfyQ8x5NwhAeCQkrBSWVeXxXghcNz').should.equal('bch');
+    });
+    it('should return null for 1L', function() {
+      should.not.exist(Utils.getAddressCoin('1L'));
+    });
+  });
+ 
+
+  describe('#translateAddress', function() {
+    it('should translate address from btc to bch', function() {
+      var res = Utils.translateAddress('XqHSiRAXd3EmNUPCAqok6ch5XzVWqKg7VD', 'bch');
+      res.should.equal('CX4VTCrhYNzi7fh2zhpSpbdKKn8EdYGGPe');
+    });
+    it('should translate address from bch to btc', function() {
+      var res = Utils.translateAddress('HBf8isgS8EXG1r3X6GP89FmooUmiJ42wHS', 'btc');
+      res.should.equal('7XYf6GXX5uQEPShSWCPUWFEvhNb5Ez2JrE');
+    });
+ 
+    it('should keep the address if there is nothing to do (bch)', function() {
+      var res = Utils.translateAddress('CcJ4qUfyQ8x5NwhAeCQkrBSWVeXxXghcNz', 'bch');
+      res.should.equal('CcJ4qUfyQ8x5NwhAeCQkrBSWVeXxXghcNz');
+    });
+    it('should keep the address if there is nothing to do (btc)', function() {
+      var res = Utils.translateAddress('XqHSiRAXd3EmNUPCAqok6ch5XzVWqKg7VD', 'btc');
+      should.exist(res);
+      res.should.equal('XqHSiRAXd3EmNUPCAqok6ch5XzVWqKg7VD');
+    });
+
+
+
+  });
+  
 });
