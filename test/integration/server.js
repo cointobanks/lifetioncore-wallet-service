@@ -3086,7 +3086,7 @@ describe('Wallet service', function() {
       bch: 'id44bch',
   };
 
-  _.each(['btc'], function(coin) {
+  _.each(['bch','btc'], function(coin) {
   
     describe('#createTx ' + coin, function() {
       var addressStr, idKey;
@@ -3175,10 +3175,11 @@ describe('Wallet service', function() {
             });
           });
           it('should fail to create tx for address of different network', function(done) {
+            if (coin == 'bch') { var toAddress = 'myE38JHdxmQcTJGP1ZiX4BiGhDxMJDvLJD'; } else { var toAddress = 'yj3v6A6gQkiRbChbGwvahiFZ6EfpYxk9na' }
             helpers.stubUtxos(server, wallet, 1, function() {
               var txOpts = {
                 outputs: [{
-                  toAddress: 'yj3v6A6gQkiRbChbGwvahiFZ6EfpYxk9na',
+                  toAddress: toAddress,
                   amount: 0.5e8
                 }],
                 feePerKb: 100e2,
