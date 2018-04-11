@@ -13,7 +13,7 @@ Bitcore Wallet Service facilitates multisig HD wallets creation and operation th
 
 BWS can usually be installed within minutes and accommodates all the needed infrastructure for peers in a multisig wallet to communicate and operate – with minimum server trust.
   
-See [Bitcore-wallet-client](https://github.com/bitpay/bitcore-wallet-client) for the *official* client library that communicates to BWS and verifies its response. Also check [Bitcore-wallet](https://github.com/bitpay/bitcore-wallet) for a simple CLI wallet implementation that relays on BWS.
+See [Bitcore-wallet-client](https://github.com/bitpay/bitcore-wallet-client) for the *official* client library that communicates to BWS and verifies its response. Also check [Bitcore-wallet](https://github.com/bitpay/bitcore-wallet) for a simple CLI wallet implementation that relies on BWS.
 
 BWS is been used in production enviroments for [Copay Wallet](https://copay.io), [Bitpay App wallet](https://bitpay.com/wallet) and others.  
 
@@ -32,6 +32,14 @@ BWS needs mongoDB. You can configure the connection at `config.js`
 BWS supports SSL and Clustering. For a detailed guide on installing BWS with extra features see [Installing BWS](https://github.com/bitpay/bitcore-wallet-service/blob/master/installation.md). 
 
 BWS uses by default a Request Rate Limitation to CreateWallet endpoint. If you need to modify it, check defaults.js' `Defaults.RateLimit`
+
+# Using BWS with PM2
+
+BWS can be used with PM2 with the provided `app.js` script: 
+ 
+```
+  pm2 start app.js --name "bitcoin-wallet-service"
+```
 
 # Security Considerations
  * Private keys are never sent to BWS. Copayers store them locally.
@@ -146,7 +154,7 @@ Returns:
 Required Arguments:
  * toAddress: RCPT Bitcoin address.
  * amount: amount (in satoshis) of the mount proposed to be transfered
- * proposalsSignature: Signature of the proposal by the creator peer, using prososalSigningKey.
+ * proposalsSignature: Signature of the proposal by the creator peer, using proposalSigningKey.
  * (opt) message: Encrypted private message to peers.
  * (opt) payProUrl: Paypro URL for peers to verify TX
  * (opt) feePerKb: Use an alternative fee per KB for this TX.
@@ -212,7 +220,7 @@ Required Arguments:
 `/v1/pushnotifications/subscriptions/`: Adds subscriptions for push notifications service at database.
 
 
-## DELETE Endopints
+## DELETE Endpoints
 `/v2/pushnotifications/subscriptions/`: Remove subscriptions for push notifications service from database.
 
  

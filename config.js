@@ -38,19 +38,26 @@ var config = {
     },
   },
   blockchainExplorerOpts: {
-    livenet: {
-      provider: 'insight',
-      url: 'https://insight.dashevo.org',
-      apiPrefix:'/insight-api-dash'
+    btc: {
+      livenet: {
+        provider: 'insight',
+        url: 'https://insight.dashevo.org:443',
+        apiPrefix:'/insight-api-dash'
+      },
+      testnet: {
+        provider: 'insight',
+        url: 'https://testnet-insight.dashevo.org:443',
+        apiPrefix:'/insight-api-dash'
+        // url: 'http://localhost:3001',
+        // Multiple servers (in priority order)
+        // url: ['http://a.b.c', 'https://test-insight.bitpay.com:443'],
+      },
     },
-    testnet: {
-      provider: 'insight',
-      url: 'https://testnet-insight.dashevo.org',
-      apiPrefix:'/insight-api-dash'
-      // url: 'https://test-insight.dash.org',
-      // url: 'http://localhost:3001',
-      // Multiple servers (in priority order)
-      // url: ['http://a.b.c', 'https://test-insight.bitpay.com:443'],
+    bch: {
+      livenet: {
+        provider: 'insight',
+        url: 'https://cashexplorer.bitcoin.com',
+      },
     },
   },
   pushNotificationsOpts: {

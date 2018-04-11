@@ -24,6 +24,11 @@ describe('TxProposal', function() {
       should.exist(txp);
       txp.amount.should.equal(aTXP().amount);
     });
+    it('should default to BTC coin', function() {
+      var txp = TxProposal.fromObj(aTXP());
+      should.exist(txp);
+      txp.coin.should.equal('btc');
+    });
   });
 
   describe('#getBitcoreTx', function() {
@@ -112,7 +117,10 @@ var theXPub2 = 'tpubDDb5nCWVNuPEbm9ztztimbb5PfZQmMJx4d1r4WaXfkTeTu6kVfToQL2CK5sG
 var theSignatures2 = ['3045022100da1d7e668ca6da193a56dcad9fc65c968b754519b0844fd59a3be2cf003de9a50220025bd2d1f7dedff569e0ac3e685eea999d2cfb7378a6483c3233cdb4110fb68c'];
 var theRawTx = '01000000013768fb3473c0f10758abc1fda4ef8c54f059003f2d448968c0ad804c4dcf0b4800000000db00483045022100da1d7e668ca6da193a56dcad9fc65c968b754519b0844fd59a3be2cf003de9a50220025bd2d1f7dedff569e0ac3e685eea999d2cfb7378a6483c3233cdb4110fb68c0148304502210089951aa097679be899866973826b1402f08efc10ba38a169a6262a6b17b0dab302206f5a2d840b225137503596f6350929fe7b36897dddcb3cf55e7defb2410be6bf01475221029153fd3f81a098634e7439fe7acf18a0464b6518fbf693b4c9f17b599a079ad82103f39e325ed77e2a95986f595042b8b3208382d1e74ea5b24831c67280a21ace6752aeffffffff0380969800000000001976a914f4d7feb11bc143018d55a463e3690703a9d9352188ac002d3101000000001976a914f4d7feb11bc143018d55a463e3690703a9d9352188acd0e6e2441700000017a91403d4b30b14cafa3047955b2764586d40b105733c8700000000';
 var aTxpOpts = function(type) {
+
   var opts = {
+    coin: 'btc',
+    network: 'livenet',
     message: 'some message'
   };
   opts.outputs = [{
@@ -128,7 +136,7 @@ var aTxpOpts = function(type) {
   return opts;
 };
 
-var aTXP = function(type) {
+var aTXP = function() {
   var txp = {
     "version": 3,
     "createdOn": 1475385140,
