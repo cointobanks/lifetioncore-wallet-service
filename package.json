@@ -1,11 +1,11 @@
 {
   "name": "bitcore-wallet-service-dash",
-  "description": "A service for Mutisig HD Bitcoin Wallets",
+  "description": "A service for Mutisig HD Dash Wallets",
   "author": "BitPay Inc",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "licence": "MIT",
   "keywords": [
-    "bitcoin",
+    "dash",
     "copay",
     "multisig",
     "wallet",
