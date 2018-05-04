@@ -12,7 +12,7 @@ var tingodb = require('tingodb')({
   memStore: true
 });
 
-var Bitcore = require('bitcore-lib-dash');
+var Bitcore = require('@dashevo/dashcore-lib');
 var Bitcore_ = {
   btc: Bitcore,
   bch: require('bitcore-lib-cash')
