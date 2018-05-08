@@ -2,7 +2,7 @@
   "name": "bitcore-wallet-service-dash",
   "description": "A service for Mutisig HD Dash Wallets",
   "author": "BitPay Inc",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "licence": "MIT",
   "keywords": [
     "dash",
@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "async": "^0.9.2",
-    "bitcore-lib-dash": "^0.15.0",
+    "@dashevo/dashcore-lib": "^0.15.0",
     "bitcore-lib-cash": "^0.16.1",
     "body-parser": "^1.11.0",
     "compression": "^1.6.2",
@@ -53,8 +53,7 @@
     "socket.io": "^1.3.5",
     "socket.io-client": "^1.3.5",
     "sticky-session": "^0.1.0",
-    "uuid": "*",
-    "webcoin-bitcoin": "dashevo/webcoin-dash"
+    "uuid": "*"
   },
   "devDependencies": {
     "chai": "^1.9.1",
