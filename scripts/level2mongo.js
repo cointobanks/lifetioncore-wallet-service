@@ -2,7 +2,7 @@
 
 var LevelStorage = require('../lib/storage_leveldb');
 var MongoStorage = require('../lib/storage');
-var Bitcore = require('@dashevo/dashcore-lib');
+var Bitcore = require('lifetioncore-lib');
 
 var level = new LevelStorage({
   dbPath: './db',

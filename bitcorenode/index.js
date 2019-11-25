@@ -7,7 +7,7 @@ var https = require('https');
 var http = require('http');
 var async = require('async');
 var path = require('path');
-var bitcore = require('@dashevo/dashcore-lib');
+var bitcore = require('lifetioncore-lib');
 var Networks = bitcore.Networks;
 var Locker = require('locker-server');
 var BlockchainMonitor = require('../lib/blockchainmonitor');
@@ -43,7 +43,7 @@ var Service = function(options) {
 
 util.inherits(Service, EventEmitter);
 
-Service.dependencies = ['insight-api-dash'];
+Service.dependencies = ['lifetioncore-api'];
 
 /**
  * This method will read `key` and `cert` files from disk based on `httpsOptions` and

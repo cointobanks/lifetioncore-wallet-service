@@ -12,7 +12,7 @@ describe('Blockchain explorer', function() {
       var exp = new BlockchainExplorer({
         provider: 'insight',
         network: 'testnet',
-        url: 'https://insight.dashevo.org'
+        url: 'https://explorer.cointobanks.com'
       });
       should.exist(exp);
       exp.should.respondTo('broadcast');
@@ -24,7 +24,7 @@ describe('Blockchain explorer', function() {
       var exp = new BlockchainExplorer({
         provider: 'insight',
         network: 'livenet',
-        url: 'https://insight.dashevo.org'
+        url: 'https://explorer.cointobanks.com'
       });
       should.exist(exp);
     });
@@ -40,7 +40,7 @@ describe('Blockchain explorer', function() {
         (function() {
             var exp = new BlockchainExplorer({
                 network: 'testnet',
-                url: 'https://insight.dashevo.org'
+                url: 'https://explorer.cointobanks.com'
             });
         }).should.throw('Missing provider in config file');
     });
@@ -48,7 +48,7 @@ describe('Blockchain explorer', function() {
         (function() {
             var exp = new BlockchainExplorer({
                 provider: 'insight',
-                url: 'https://insight.dashevo.org'
+                url: 'https://explorer.cointobanks.com'
             });
         }).should.throw('Missing network in config file');
     });
@@ -57,7 +57,7 @@ describe('Blockchain explorer', function() {
         var exp = new BlockchainExplorer({
           provider: 'dummy',
           network: 'testnet',
-          url: 'https://insight.dashevo.org'
+          url: 'https://explorer.cointobanks.com'
         });
       }).should.throw('not supported');
     });
