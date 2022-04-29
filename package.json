@@ -20,7 +20,7 @@
     "url": "https://github.com/cointobanks/lifetioncore-wallet-service/issues"
   },
   "dependencies": {
-    "async": "^0.9.2",
+    "async": "^2.6.4",
     "lifetioncore-lib": "^2.0.0",
     "bitcore-lib-cash": "^0.16.1",
     "body-parser": "^1.11.0",
